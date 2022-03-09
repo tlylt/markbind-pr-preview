@@ -28,8 +28,10 @@ runs:
     - name: Install surge and deploy PR to surge
       if: ${{ success() && github.event_name == 'pull_request' }}
       run: |
+        echo "prNum=${{ github.event.number }}" >> $GITHUB_ENV
         npm i -g surge
         PR_PREVIEW_URL="https://pr-${{ github.event.number }}-${{ inputs.baseUrl }}.surge.sh/"
+        echo "previewUrl=$PR_PREVIEW_URL" >> $GITHUB_ENV
         surge --project ./_site --domain $PR_PREVIEW_URL
       shell: bash
       env:
@@ -38,14 +40,14 @@ runs:
       uses: peter-evans/find-comment@v1
       id: fc
       with:
-        issue-number: ${{ steps.pr-number.outputs.ACTIONS_PR_NUMBER }}
+        issue-number: ${{ env.prNum }}
         body-includes: Your PR can be previewed
     - name: Comment PR preview link in PR
       if: ${{ steps.fc.outputs.comment-id == 0 }}
       uses: peter-evans/create-or-update-comment@v1
       with:
-        issue-number: ${{ steps.pr-number.outputs.ACTIONS_PR_NUMBER }}
+        issue-number: ${{ env.prNum }}
         body: |
           Thank you for submitting the Pull Request! :thumbsup: 
 
-          Your PR can be previewed [here](${{ steps.pr-url.outputs.ACTIONS_PREVIEW_URL }})
+          Your PR can be previewed [here](${{ env.previewUrl }})
