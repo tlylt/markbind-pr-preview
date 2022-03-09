@@ -28,9 +28,9 @@ runs:
     - name: Install surge and deploy PR to surge
       if: ${{ success() && github.event_name == 'pull_request' }}
       run: |
-        PR_PREVIEW_URL="https://pr-${{ github.event.number }}-${{ inputs.baseUrl }}.surge.sh/"
         npm i -g surge
-        surge --project ./_site --domain ${{ PR_PREVIEW_URL }}
+        PR_PREVIEW_URL="https://pr-${{ github.event.number }}-${{ inputs.baseUrl }}.surge.sh/"
+        surge --project ./_site --domain $PR_PREVIEW_URL
       shell: bash
       env:
         SURGE_TOKEN: ${{ inputs.token }}
