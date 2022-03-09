@@ -1,15 +1,14 @@
-on: [push]
+on:
+  pull_request:
 
 jobs:
   hello_world_job:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: Test MarkBind PR Preview Action
     steps:
       - uses: actions/checkout@v2
-      - id: foo
+      - id: markbind-pr-preview
         uses: ./
         with:
-          who-to-greet: 'tlylt'
+          baseUrl: 'tlylt'
           token: ${{ secrets.SURGE_TOKEN }}
-      - run: echo random-number ${{ steps.foo.outputs.random-number }}
-        shell: bash
