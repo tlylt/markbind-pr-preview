@@ -12,12 +12,55 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/checkout@v2
+    - name: Install Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: 10
+    - name: Build Markbind website
+      run: |
+        npm install -g markbind-cli
+        markbind init
+        markbind build
+    - name: Save PR number and HEAD commit
+      if: ${{ success() && github.event_name == 'pull_request' }}
+      run: |
+        mkdir -p ./pr
+        echo ${{ github.event.number }} > ./pr/NUMBER
+        echo ${{ github.event.pull_request.head.sha }} > ./pr/SHA
+    - name: Extract PR number
+      id: pr-number
+      run: echo '::set-output name=ACTIONS_PR_NUMBER::'$(cat ./pr/NUMBER)
+    - name: Build PR preview url
+      id: pr-url
+      run: |
+        PR_URL="https://pr-${{ steps.pr-number.outputs.ACTIONS_PR_NUMBER }}-<YOUR_BASE_URL>.surge.sh/"
+        echo '::set-output name=ACTIONS_PREVIEW_URL::'$PR_URL
+    - name: Install surge and deploy PR to surge
+      run: |
+        npm i -g surge
+        surge --project ./_site --domain ${{ steps.pr-url.outputs.ACTIONS_PREVIEW_URL }}
+      env:
+        SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+    - name: Find existing PR preview link comment
+      uses: peter-evans/find-comment@v1
+      id: fc
+      with:
+        issue-number: ${{ steps.pr-number.outputs.ACTIONS_PR_NUMBER }}
+        body-includes: Your PR can be previewed
+    - name: Comment PR preview link in PR
+      if: ${{ steps.fc.outputs.comment-id == 0 }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ steps.pr-number.outputs.ACTIONS_PR_NUMBER }}
+        body: |
+          Thank you for submitting the Pull Request! :thumbsup: 
+
+          Your PR can be previewed [here](${{ steps.pr-url.outputs.ACTIONS_PREVIEW_URL }})
     - run: echo Hello ${{ inputs.who-to-greet }}.
       shell: bash
     - id: random-number-generator
       run: echo "::set-output name=random-id::$(echo $RANDOM)"
       shell: bash
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash          
-    - run: goodbye.sh
       shell: bash
