@@ -5,7 +5,7 @@ inputs:
     description: 'Who to greet'
     required: true
     default: 'World'
-  token: 'SURGE_TOKEN'
+  token: # 'SURGE_TOKEN'
     description: 'Required token'
     required: true
 outputs:
