@@ -10,6 +10,6 @@ jobs:
         uses: ./
         with:
           who-to-greet: 'tlylt'
-          token: {{ secrets.SURGE_TOKEN }}
+          token: ${{ secrets.SURGE_TOKEN }}
       - run: echo random-number ${{ steps.foo.outputs.random-number }}
         shell: bash
