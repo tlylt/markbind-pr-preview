@@ -5,6 +5,9 @@ inputs:
     description: 'Who to greet'
     required: true
     default: 'World'
+  token: 'SURGE_TOKEN'
+    description: 'Required token'
+    required: true
 outputs:
   random-number:
     description: "Random number"
@@ -46,7 +49,7 @@ runs:
         surge --project ./_site --domain ${{ steps.pr-url.outputs.ACTIONS_PREVIEW_URL }}
       shell: bash
       env:
-        SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+        SURGE_TOKEN: ${{ inputs.token }}
     - name: Find existing PR preview link comment
       uses: peter-evans/find-comment@v1
       id: fc
